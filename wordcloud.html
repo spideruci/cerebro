@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+/*.node text {
+  pointer-events: none;
+  font: 10px sans-serif;
+}*/
+
+.link {
+  stroke: white;
+  /*stroke-opacity: 1;*/
+}
+
+svg {
+  /*background-color: black;*/
+  border-color: black;
+}
+
+button {
+  margin-bottom: 1em;
+}
+
+</style>
+<title>Force</title>
+<div>
+  <h1>May the Force be with you</h1>
+</div>
+
+<script src="javascripts/d3.v3/d3.v3.min.js"></script>
+<script>
+
+var width = 600,
+    height = 550;
+
+var color = d3.scale.category10();
+
+var force = d3.layout.force()
+    .charge(-100)
+    .linkDistance(500)
+    .size([width, height]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("style", "background-color: white")
+    .style("border-color", "black")
+    .attr("pointer-events", "all")
+    .call(d3.behavior.zoom().on("zoom", redraw));
+
+var vis = svg.append('svg:g');
+function redraw() {
+  // console.log("here", d3.event.translate, d3.event.scale);
+  vis.attr("transform",
+    "translate(" + d3.event.translate + ")"
+    + " scale(" + d3.event.scale + ")");
+}
+
+d3.json("miserables.json", function(error, graph) {
+  force.nodes(graph.nodes)
+  // .charge(-40)
+  // .links(graph.links)
+  .theta(0)
+       .start();
+  console.log("force completed");
+  // console.log(graph);
+    
+  var node = vis
+      .selectAll(".node")
+      .data(graph.nodes)
+      .enter().append("g");
+
+  node.append("text")
+      .style("fill", function(d, i) { return color(i % 4); })
+      .style("font-size", function(d) { return d.group + 10 })
+      .style("cursor", "pointer")
+      .text(function(d) { return d.name })
+      // .call(force.drag);
+      ;
+
+  // node.append("rect")
+  //     .attr("width", function(d) { 
+  //       var fontsize = d.group + 10; 
+  //       return d.name.length * (fontsize/2); 
+  //     })
+  //     .attr("height", function(d) { return d.group + 10 })
+  //     .attr("y", function(d) { 
+  //       return -(d.group + 8); 
+  //     })
+  //     .style("fill", "none")
+  //     .style("stroke", function(d, i) { return color(i % 4); })
+  //     ;
+
+  console.log("nodes completed");
+
+  
+  force.on("tick", function() {
+      // var q = d3.geom.quadtree(graph.nodes),
+      //     n = graph.nodes.length;
+      //     i = 0;
+      // while (++i < n) {
+      //   q.visit(collide(graph.nodes[i]));
+      // }
+      // if( force.alpha() <= 0.0055 ) {
+      //   force.stop();
+      // }
+      node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  });
+});
+
+
+
+var collide = function (node) {
+  // console.log(node);
+  var offset = 16; 
+  var nx_left = (node.x / 2) - offset,
+      nx_right = (node.x / 2) + offset,
+      ny_top = (node.y / 2) - offset,
+      ny_bottom = (node.y / 2) + offset;
+  return function(quad, x1, y1, x2, y2) {
+    if (quad.point && (quad.point !== node)) {
+      
+      var left_collision = ((node.x > quad.point.x) && (node.x < (quad.point.x + width(quad.point))));
+
+      var right_collision = (((node.x + width(node)) < (quad.point.x + width(quad.point))) && (((node.x + width(node)) > quad.point.x)));
+
+      var top_collision = (node.y > quad.point.y) && ((quad.point.y + height(quad.point)) > node.y);
+
+      var bottom_collision = ((node.y + height(node)) < (quad.point.y + height(quad.point))) && (quad.point.y < (node.y + height(node)));
+
+      if(left_collision) {
+        var change = (quad.point.x + width(quad.point)) - node.x;
+        node.x += (change);
+      }      
+
+      if(right_collision) {
+        var change = ((node.x + width(node)) - quad.point.x);
+        node.x -= (change);
+      }
+
+      if(top_collision) {
+        var change = (quad.point.y + height(quad.point)) - node.y;
+        node.y += (change);
+      }
+
+      if(bottom_collision) {
+        var change = (node.y + height(node)) - quad.point.y;
+        node.y -= (change);
+      }
+
+    }
+    return x1 > nx_right
+        || x2 < nx_left
+        || y1 > ny_bottom
+        || y2 < ny_top;
+  };
+};
+
+var width = function (node) {
+  // console.log("hello")
+  return node.name.length * ((node.group + 10)/2);
+};
+
+var height = function (node) {
+  return node.group + 10;
+};
+
+
+</script>

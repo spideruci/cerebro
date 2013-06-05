@@ -1,0 +1,415 @@
+<!-- http://localhost:8080/brain.html -->
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+h1, h2, h3, h4 {
+font-weight: normal;
+color: #111;
+line-height: 1em;
+font-family: Georgia, Palatino, 'Palatino Linotype', Times, 'Times New Roman', 'Hiragino Sans GB', STXihei, 微软雅黑, serif;
+font-weight: normal;
+}
+
+.node {
+  fill: #fff;
+  stroke: #fff;
+  stroke-width: 0px;
+}
+
+.node .selected {
+  stroke: red;
+  stroke-width: 1.5px;
+}
+
+.link {
+  stroke: rgba(0, 255, 31, 0.5);
+  stroke-width: 1px;
+  /*stroke-opacity: 1;*/
+}
+
+svg {
+  border-color: black;
+}
+
+button {
+  margin-bottom: 1em;
+  border-radius: 1em;
+  background-color: rgba(0, 252, 30, 0.19);
+}
+
+input.slider {
+  width: 100%
+}
+
+div.sourcecode {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  font-family: Courier;
+  font-size: 12px;
+  font-weight: bold;
+  background-color: #111;
+  color: #BBB;
+  width: 100%;
+  height: 150px;
+}
+
+.brush .extent {
+  stroke: "blue";
+  stroke-width: 50px;
+  fill: rgba(0, 214, 255, 0.50);
+  shape-rendering: crispEdges;
+}
+
+</style>
+<title>Thinking ...</title>
+<div id="header" style="width:50%; float:left;">
+  <h1>The Brain</h1>
+  <small>Developed by: Vijay Krishna Palepu and James A. Jones, <a href="http://spideruci.org" target="_blank">SpiderLab, UCI</a><span></small>
+  <h4>Subject Program: <a href="http://nanoxml.sourceforge.net/orig/" target=_blank>NanoXML</a></h4>
+  <span>Select Execution to Run: <span><select id="execution-selector" onchange="change_execution(this.value)"></select> <br/>
+  <button type="button" onclick="toggle_edges()" disabled>Show Edges</button> 
+  <button type="button" onclick="remove_edge_weights()" disabled>Remove Edge Weights</button> 
+  <button type="button" onclick="add_edge_weights()" disabled>Add Edge Weights</button> 
+  <input type="checkbox" name="lock_trans" value="hold" onchange="lock_transformation(this)"> Lock Transformation<br>
+  <br/>
+  <button type="button" onclick="blink()" disabled>Play Execution</button> <br/>
+  <span style="font-size: 13px;font-family: Arial;">Execution Progress:</span>
+  <input name="slider" class="slider" type="range"  min="0" value="0" step="1" /> <br/>
+  <span style="font-size: 13px;font-family: Arial;">Current Executing Instruction:</span><br/>
+  <div class="sourcecode" name="curr_insn">
+
+  </div>
+
+  <input type="text" style="border-style: none; width: 150px;" name="state" readonly="readonly" value="Loading ... please wait.">
+  <label for="state" style="font-size: 13px;font-family: Arial;" id="timeview"></label>
+
+</div>
+<div id="classlist" style="margin:5px; width:40%; float:left; overflow-y: scroll; height: 500px;">
+
+</div>
+
+
+<script src="/javascripts/d3.v3/d3.v3.min.js"></script>
+<script>
+
+var color = d3.scale.category10();
+
+var width = document.getElementsByTagName("body")[0].offsetWidth,
+    height = 768;
+
+var x_scale = d3.scale.linear()
+    .range([-700, width + 1000]);
+
+var y_scale = d3.scale.linear()
+    .range([-1010, height*2 + 500]);
+
+var force = d3.layout.force()
+    .charge(-300)
+    .linkDistance(function(d,i) {return (1/d.value);})
+    .linkStrength(function(d,i) {return 1 - (1/d.value);})
+    .theta(.1)
+    .size([width, height])
+    ;
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("style", "background-color: black")
+    .attr("pointer-events", "all")
+    .call(d3.behavior.zoom().on("zoom", redraw))
+    ;
+
+
+
+var vis = svg.append('svg:g');
+
+
+
+function redraw() {
+
+  if(should_transform) {
+    translate_x = d3.event.translate[0];
+    translate_y = d3.event.translate[1];
+    vis.attr("transform",
+      "translate(" + d3.event.translate + ")"
+      + " scale(" + d3.event.scale + ")");  
+  } else {
+    if(translate_y == null || translate_x == null) {
+      translate_x = width/4;
+      translate_y = height/4;
+    }
+    vis.attr("transform",
+      "translate(" + translate_x + "," + translate_y + ")"
+      + " scale(" + d3.event.scale + ")");    
+  }
+}
+
+var start = new Date().getTime();
+var time = 0;
+var traces;
+var traces_pointer;
+var ddg_nodes;
+var ddg_links;
+var should_transform = true;
+var translate_x = null;
+var translate_y = null;
+var dict = [];
+
+d3.json("/data/nano_test7.json", function(error, graph) {
+  traces = graph.traces;
+  traces_pointer = 0;
+  ddg_nodes = graph.nodes;
+  ddg_links = graph.links;
+  var slider_element = document.getElementsByName("slider")[0];
+  slider_element.max = traces[traces_pointer].length;
+  force
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .start();
+      console.log("force completed");
+  
+
+  var links = vis.selectAll(".link")
+                .data(graph.links)
+                .enter().append("line")
+                .attr("class", "link")
+                .attr("content", function(d) {return d.value;})
+                .style("stroke-width", function(d) { return Math.sqrt(d.value); })
+                ;
+
+  var brush = vis.append("g")
+  .attr("class", "brush")
+  .call(d3.svg.brush().x(x_scale).y(y_scale)
+  .on("brushstart", brushstart)
+  .on("brush", function() {
+        var extent = d3.event.target.extent();
+        extent[0][0] = x_scale(extent[0][0]);
+        extent[0][1] = y_scale(extent[0][1]);
+        extent[1][0] = x_scale(extent[1][0]);
+        extent[1][1] = y_scale(extent[1][1]);
+        node.classed("selected", function(d) {
+          return extent[0][0] <= d.x && d.x < extent[1][0]
+              && extent[0][1] <= d.y && d.y < extent[1][1];
+        });
+        dict = [];
+        var selected_nodes = d3.selectAll("circle.selected")[0];
+        for(var count = 0; count < selected_nodes.length; count += 1) {
+          var temp = selected_nodes[count].getAttribute("content");
+          put_classname_in_dict(temp)
+        }
+        var output = "";
+        for(var count2 = 0; count2 < dict.length; count2 += 1) {
+          var temp = dict[count2].key.substring("Class: ".length) + " " + dict[count2].value + "<br/>";
+          output += temp;  
+        }
+        document.getElementById("classlist").innerHTML = output;
+      })
+  .on("brushend", brushend));
+
+  var node = vis.selectAll(".node")
+      .data(graph.nodes)
+    .enter().append("circle")
+      .attr("class", "node")
+      .attr("r", 5)
+      .style("fill", function(d) { return color(d.group); })
+      .attr("content", function(d) { return get_instruction_info(d); })
+      ;
+
+ 
+
+  var option_strings = new Array();
+  for(var j = 0; j <= graph.traces.length; j += 1) {
+    option_strings[j] = "execution" + j;
+  }
+
+  var exec_options = d3.select("select").selectAll("option")
+                        .data(option_strings)
+                        .enter().append("option")
+                        .attr("value", function(d) {return d;})
+                        .text(function(d) {return d;})
+                        ;
+      
+    console.log("nodes completed");
+
+  node.append("title")
+      .text(function(d) { return get_instruction_info(d); });
+
+
+
+  force.on("tick", function() {
+    if( force.alpha() <= 0.0055 ) { 
+      console.log(force.alpha());
+      links.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; }); 
+      node.attr("cx", function(d) { return d.x; })
+          .attr("cy", function(d) { return d.y; });
+      force.stop();
+      var end = new Date().getTime();
+      time = end - start;
+      console.log(time);
+      time = time / 1000;
+      document.getElementsByName("state")[0].value = "loading completed in ... "
+      document.getElementById("timeview").innerHTML = time.toString() + " seconds."
+      for(var i = 0; i < document.getElementsByTagName("button").length; i += 1) {
+        document.getElementsByTagName("button")[i].disabled = false  
+      }
+      
+    }
+  });
+});
+
+var blink = function(start_pos) {
+  start_pos = typeof start_pos !== 'undefined' ? start_pos : 0;
+  document.getElementsByTagName("button")[3].disabled = true;
+  var nodes = vis.selectAll(".node");
+  var length = traces[traces_pointer].length;
+  var step_size = 1;
+  var playback_speed = 100;
+  var counter = 0;
+  var counter2 = 0;
+  for (var i = start_pos; i < length; i += step_size) {
+    node = nodes[0][traces[traces_pointer][i]]
+    t00 = d3.select(node).transition().duration(10);
+    t00.delay(function(d, j) { return (50) + (counter*playback_speed); })
+    .each("end", function() {
+      counter2 += 1;
+      var slider_element = document.getElementsByName("slider")[0];
+      slider_element.value = (counter2*step_size);
+      
+      if(counter2 * step_size < length) {
+        var curr_insn_div = document.getElementsByName("curr_insn")[0];
+        var find = '\n';
+        var re = new RegExp(find, 'g');
+        curr_insn_div.innerHTML = get_instruction_info(ddg_nodes[traces[traces_pointer][counter2 * step_size]]).replace(re, "<br/>"); 
+      }
+      
+      if((counter2 * step_size) >= length - (length % step_size)) {
+        document.getElementsByTagName("button")[3].disabled = false;
+      }
+    })
+    .attr("r", "10")
+    .style("fill", "white");
+
+    var t11 = t00.transition().duration(10);
+    t11.delay(function(d, k) { return (50) + 500  + (counter*playback_speed); })
+    .each("end", function() {
+
+    })
+    .attr("r", "5")
+    .style("fill", function(d) { return color(d.group); });
+    counter += 1;
+  }
+}
+
+var blink2 = function() {
+  var nodes = vis.selectAll(".node");
+
+  var t0 = nodes.transition().duration(10);
+  t0.delay(function(d, i) { return i * 50; })
+    .attr("r", "5")
+    .style("fill", "white");
+
+  var t1 = t0.transition().duration(10);
+  t1.delay(function(d, i) { return (i * 50) + 500; })
+    .attr("r", "3")
+    .style("fill", function(d) { return color(d.group); });
+}
+
+
+var get_instruction_info = function(insn) {
+  var str_temp = insn.name.replace(".", ", \nMethod: ");
+
+  return "Line: " + str_temp.replace(".", ", \nClass: ") + ", \nSource Code Line: " + insn.source; 
+}
+
+var toggle_edges = function() {
+  if(vis.select(".link").style("visibility") === "visible") {
+    vis.selectAll(".link")
+      .attr("visibility", "hidden");  
+  } else {
+    vis.selectAll(".link")
+      .attr("visibility", "visible");  
+  } 
+}
+
+var remove_edge_weights = function() {
+  var links = vis.selectAll(".link")[0];
+  for(var i = 0 ; i < links.length; i += 1) {
+    links[i].style.strokeWidth = 1 + "px";
+  }
+}
+
+var add_edge_weights = function() {
+  var links = vis.selectAll(".link")[0];
+  for(var i = 0 ; i < links.length; i += 1) {
+    var width =parseInt(links[i].getAttribute("content"));
+    links[i].style.strokeWidth = Math.sqrt(width) + "px";
+  }
+}
+
+var change_execution = function(value) {
+  var index = parseInt(value.substring("execution".length));
+  traces_pointer = index;
+  var slider_element = document.getElementsByName("slider")[0];
+  slider_element.max = traces[traces_pointer].length;
+}
+
+var lock_transformation = function(checkbox) {
+  if(checkbox.checked) {
+    should_transform = false;
+  } else {
+    should_transform = true;
+  }
+}
+
+var put_classname_in_dict = function(text) {
+  var start = text.indexOf("Class:");
+  var end = text.indexOf("\nSource Code Line:");
+  if(start == -1 || end == -1) return false;
+  sub = text.substring(start, end);
+  var contains = false;
+  var result = null;
+  for(var i = 0; i < dict.length; i += 1) {
+    if(dict[i].key === sub) {
+      result = dict[i];
+      contains = true;  
+      break;
+    }
+  }
+  if(contains) {
+    if(parseInt(result.value)) {
+      result.value += 1;
+    } else {
+      result.value = 1;
+    }
+  } else {
+    dict[dict.length] = {key: sub, value: 1}
+  }
+}
+
+function brushstart() {
+  svg.classed("selected", true);
+}
+
+// function brushmove() {
+//   var e = d3.event.target.extent();
+//   node.classed("selected", function(d) {
+//             return extent[0][0] <= d.x && d.x < extent[1][0]
+//                 && extent[0][1] <= d.y && d.y < extent[1][1];
+//   });
+// }
+
+function brushend() {
+  svg.classed("selected", !d3.event.target.empty());
+}
+
+
+
+</script>
