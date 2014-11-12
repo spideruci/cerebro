@@ -17,8 +17,12 @@ THE BRAIN reveals clusters of source code that co-execute to produce behavioral 
 *More to come.*
 
 ### Authors:
-Lead Engineer: Vijay Krishna Palepu, vpalepu [at] uci [dot] edu.
+Lead Engineer: Vijay Krishna Palepu, vpalepu [at] uci [dot] edu.  
 James A. Jones, jajones [at] uci [dot] edu.
+
+### Acknowledgements:
+This work is supported by the National Science Founda-
+tion under awards CAREER CCF-1350837 and CCF-1116943.
 
 # LICENSE.txt
 
