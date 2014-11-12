@@ -170,7 +170,7 @@ var translate_y = null;
 var dict = [];
 var method_dict = [];
 
-d3.json("/data/nano_test7.json", function(error, graph) {
+d3.json("/data/nano_dep_test3.json", function(error, graph) {
   traces = graph.traces;
   traces_pointer = 0;
   ddg_nodes = graph.nodes;
@@ -334,6 +334,7 @@ var blink = function(start_pos) {
     counter += 1;
   }
 }
+
 
 var blink2 = function() {
   var nodes = vis.selectAll(".node");
