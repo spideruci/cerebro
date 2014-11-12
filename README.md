@@ -22,7 +22,7 @@ James A. Jones, jajones [at] uci [dot] edu.
 
 ### Acknowledgements:
 This work is supported by the National Science Founda-
-tion under awards CAREER CCF-1350837 and CCF-1116943.
+tion under awards CAREER CCF1350837 and CCF1116943.
 
 # LICENSE.txt
 
