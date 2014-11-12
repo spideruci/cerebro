@@ -45,7 +45,7 @@ URL: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=6650537&isnumber=66
 
 
 ----------------------------------------------------------------------------
-LICENSE FOR `ASM: JAVA BYTECODE MANIPULATION AND ANANLYSIS FRAMEWORK`
+LICENSE FOR `D3.JS`
 ----------------------------------------------------------------------------
 
 Copyright (c) 2010-2014, Michael Bostock
