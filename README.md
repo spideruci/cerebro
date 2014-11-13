@@ -17,23 +17,25 @@ THE BRAIN reveals clusters of source code that co-execute to produce behavioral 
 *More to come.*
 
 ### Authors:
-Lead Engineer: Vijay Krishna Palepu, vpalepu [at] uci [dot] edu.  
-James A. Jones, jajones [at] uci [dot] edu.
+Vijay Krishna Palepu, vpalepu [at] uci [dot] edu  
+James A. Jones, jajones [at] uci [dot] edu  
 
 ### Acknowledgements:
 This work is supported by the National Science Founda-
-tion under awards CAREER CCF1350837 and CCF1116943.
+tion under awards `CAREER CCF-1350837` and `CCF-1116943`.
 
 # LICENSE.txt
 
 Also avilable with this distribution at src/LICENSE.txt
 
 ```
+:::tex
 -----------------------------------------------------------------------------
 LICENSE FOR `THE BRAIN`
 -----------------------------------------------------------------------------
 
-Copyright (c) 2014, Vijay Krishna Palepu and James A. Jones, Spider Lab (http://spideruci.org/)
+Copyright (c) 2014, Vijay Krishna Palepu and James A. Jones, Spider Lab, 
+http://spideruci.org/
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -80,19 +82,35 @@ September 2013.
 [Format: BibTex]
 @INPROCEEDINGS{6650537,
 author={Palepu, V.K. and Jones, J.A.},
-booktitle={Software Visualization (VISSOFT), 2013 First IEEE Working Conference on},
+booktitle={Software Visualization (VISSOFT), 2013 First IEEE Working 
+Conference on},
 title={Visualizing constituent behaviors within executions},
 year={2013},
 month={Sept},
 pages={1-4},
-keywords={computer animation;data flow analysis;data visualisation;program visualisation;source coding;THE BRAIN;behavioral feature production;constituent behavior visualization;dynamic control flow;modular source-code structures;neural imaging;program activity;software features;source code clustered visualization;user-controlled animations;Animation;Data visualization;Force;Layout;Software;Visualization;XML},
+keywords={computer animation;data flow analysis;data visualisation;program 
+visualisation;source coding;THE BRAIN;behavioral feature 
+production;constituent behavior visualization;dynamic control flow;modular 
+source-code structures;neural imaging;program activity;software 
+features;source code clustered visualization;user-controlled 
+animations;Animation;Data 
+visualization;Force;Layout;Software;Visualization;XML},
 doi={10.1109/VISSOFT.2013.6650537},}
 
 [Format: Plain Text]
-Palepu, V.K.; Jones, J.A., "Visualizing constituent behaviors within executions," Software Visualization (VISSOFT), 2013 First IEEE Working Conference on , vol., no., pp.1,4, 27-28 Sept. 2013
+Palepu, V.K.; Jones, J.A., "Visualizing constituent behaviors within 
+executions," Software Visualization (VISSOFT), 2013 First IEEE Working 
+Conference on , vol., no., pp.1,4, 27-28 Sept. 2013
 doi: 10.1109/VISSOFT.2013.6650537
-keywords: {computer animation;data flow analysis;data visualisation;program visualisation;source coding;THE BRAIN;behavioral feature production;constituent behavior visualization;dynamic control flow;modular source-code structures;neural imaging;program activity;software features;source code clustered visualization;user-controlled animations;Animation;Data visualization;Force;Layout;Software;Visualization;XML},
-URL: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=6650537&isnumber=6650514
+keywords: {computer animation;data flow analysis;data visualisation;program 
+visualisation;source coding;THE BRAIN;behavioral feature 
+production;constituent behavior visualization;dynamic control flow;modular 
+source-code structures;neural imaging;program activity;software 
+features;source code clustered visualization;user-controlled 
+animations;Animation;Data 
+visualization;Force;Layout;Software;Visualization;XML},
+URL: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=6650537&
+isnumber=6650514
 
 
 
@@ -104,6 +122,7 @@ Copyright (c) 2010-2014, Michael Bostock
 All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
+
 * Redistributions of source code must retain the above copyright notice, this
 list of conditions and the following disclaimer.
 
