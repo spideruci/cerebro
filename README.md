@@ -17,44 +17,15 @@ THE BRAIN reveals clusters of source code that co-execute to produce behavioral 
 ## INSTALLATION & USAGE INSTRUCTIONS
 *More to come.*
 
-<a href="#href"></a>
-## CHANGE LOG
-**v1.2 The Steady Brain**   
+## [CHANGE LOG](https://bitbucket.org/vpalepu/thebrain/wiki/Change%20Log)
 
-- Commit: TBD
-- Creating NanoXML's Brain using data from 171 executions.
-- Disabled the Force Directed rendering.
-    - Transfered Force Directed Layout Rendering to [Blinky](https://bitbucket.org/vpalepu/blinky).
-    - Loading pre-rendered (w/ force directed layout) graph.
-- Loading seperate JSON blob for each execution trace, before execution replay.
-- Box around the graph, indicating selection region, is now drawn precisely around the graph.
-    - Graph never spills out of the slection region.
-    - No (super-)extra space between the extremes of the graph.
-- Removed data for displaying the contents of the source-code line.
+-----------
 
-**v1.0 First polished version of The Brain**
-
-- Commit: 5a7a8f1
-- Showing `The Brain` for `NanoXML` a.k.a. NanoXML's Brain
-- Slider to control execution replay, and indicate extent of execution replay.
-- Slider Control for slowing down execution replay.
-- User Control for selecting an execution to replay.
-- Add/Remove Edge Weights User Control.
-- Toggle Edge Weights User Control.
-- (Re)Play Execution User Control.
-- Pause Execution User Control.
-- Resume Execution User Control.
-- Console Box to show the instruction that is currently executing.
-- Rectangular Lasso to identify the classes and methods that the selected source code belongs to.
-- User control to freeze panning to avoid accidental panning.
-- Using Bootstrap for styling index.html.
-- Provided links to this code repo and original research paper on index.html.
-
-### Authors:
+## Authors:
 Vijay Krishna Palepu, vpalepu [at] uci [dot] edu  
 James A. Jones, jajones [at] uci [dot] edu  
 
-### Acknowledgements:
+## Acknowledgements:
 This work is supported by the National Science Founda-
 tion under awards `CAREER CCF-1350837` and `CCF-1116943`.
 

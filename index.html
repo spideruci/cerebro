@@ -7,6 +7,9 @@
 <link href="/css/random.css" media="all" rel="stylesheet" type="text/css"/>
 <link href="/css/bootstrap.css" media="all" rel="stylesheet" type="text/css"/>
 
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 
 <title>Thinking ...</title>
 
@@ -27,11 +30,18 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="https://bitbucket.org/vpalepu/thebrain">Code<span class="sr-only">(current)</span></a></li>
-        <li><a href="http://www.ics.uci.edu/~vpalepu/publications/vissoft13_palepu_jones.pdf" target="_blank">Research</a></li>
+        <li class="active" role="menu"><a href="http://www.ics.uci.edu/~vpalepu/publications/vissoft13_palepu_jones.pdf" target="_blank">Research<span class="sr-only">(current)</span></a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Code <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="https://bitbucket.org/vpalepu/thebrain">The Brain (frontend)</a></li>
+            <li><a href="https://bitbucket.org/vpalepu/thebrain/wiki/Change%20Log">Change Log</a></li>
+            <li class="divider"></li>
+            <li><a href="https://bitbucket.org/vpalepu/blinky">Blinky (Code Profiler)</a></li>
+          </ul>
+        </li>
         
       </ul>
-     
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
