@@ -141,7 +141,7 @@ d3.json("brains/nanoxml3.json", function(error, graph) {
         .scales(x_scale, y_scale);
 
   // Init the lasso on the svg:g that contains the dots
-  svg.call(lasso);
+  vis.call(lasso);
 
 
 
@@ -484,14 +484,49 @@ var lasso_end = function() {
   //    .style("fill", function(d) { return color(d.species); });
 
   // // Style the selected dots
-  lasso.items().filter(function(d) {return d.selected===true})
-    .classed({"not_possible":false,"possible":false})
-    .attr("r",7);
+  var selection = lasso.items().filter(function(d) {return d.selected===true});
+  selection.classed({"not_possible":false,"possible":false})
+           .attr("r",7);
 
   
   // // Reset the style of the not selected dots
   lasso.items().filter(function(d) {return d.selected===false})
     .classed({"not_possible":false,"possible":false})
     .attr("r",5);
-
+    
+  activate_selection(selection[0])
 };
+
+var activate_selection = function(selected_nodes) {
+  dict = [];
+  method_dict = [];
+  
+  console.log(selected_nodes);
+  for (var count = 0; count < selected_nodes.length; count += 1) {
+    var temp = selected_nodes[count].getAttribute("content");
+    put_classname_in_dict(temp);
+    put_methodname_in_dict(temp);
+  }
+
+
+  var output = "Classes Selected: <br/>";
+
+  for (var count2 = 0; count2 < dict.length; count2 += 1) {
+    var classCount = dict[count2].value
+    var count_markup = "<span class=\"badge\">" + classCount + "</span>";
+    var className = dict[count2].key.substring("Class: ".length);
+    var temp = count_markup + " " + className + "<br/>";
+
+    output += temp;
+  }
+  document.getElementById("classlist").innerHTML = output;
+
+  var output2 = "Methods Selected: <br/>";
+  for (var count2 = 0; count2 < method_dict.length; count2 += 1) {
+    var methodName = method_dict[count2].key.substring("Method: ".length);
+    var methodCount = "<span class=\"badge\">" + method_dict[count2].value + "</span>";
+    var temp = methodCount + " " + methodName + "<br/>";
+    output2 += temp;
+  }
+  document.getElementById("methodlist").innerHTML = output2;
+}
