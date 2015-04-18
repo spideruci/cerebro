@@ -16,16 +16,17 @@ rect.background {
 }
 
 .link {
-  stroke: rgba(0, 255, 31, 0.5);
+  stroke: rgba(0, 255, 31, 0.3);
   stroke-width: 1px;
   /*stroke-opacity: 1;*/
 }
 
 svg {
   border-color: black;
-  width:60%;
-  height: auto;
+  width: 70%;
+  height: 100%;
   float:left;
+  background-color: black;
 }
 
 /*button {
