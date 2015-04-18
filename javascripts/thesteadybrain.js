@@ -50,6 +50,7 @@ var dict = [];
 var method_dict = [];
 var maxDistance = 0;
 var max_wt = 1;
+var lasso;
 
 d3.json("brains/nanoxml3.json", function(error, graph) {
   traces = graph.traces;
@@ -92,7 +93,7 @@ d3.json("brains/nanoxml3.json", function(error, graph) {
       return previous_max;
   }
 
-  var toMin = function(previous_min, current) {     
+  var toMin = function(previous_min, current) {
       if(current < previous_min) return current;
       return previous_min;
   }
@@ -115,58 +116,88 @@ d3.json("brains/nanoxml3.json", function(error, graph) {
   var y_scale = d3.scale.linear()
     .range([nodes_y_min - 20, nodes_y_max + 20]);
 
-  var brush = vis.append("g")
-  .attr("class", "brush")
-  .call(d3.svg.brush().x(x_scale).y(y_scale)
-  .on("brushstart", brushstart)
-  .on("brush", function() {
-        var extent = d3.event.target.extent();
-        extent[0][0] = x_scale(extent[0][0]);
-        extent[0][1] = y_scale(extent[0][1]);
-        extent[1][0] = x_scale(extent[1][0]);
-        extent[1][1] = y_scale(extent[1][1]);
-        node.classed("selected", function(d) {
+  // Create the area where the lasso event can be triggered
+  var lasso_area = svg.append("rect")
+                      .attr("x", nodes_x_min)
+                      .attr("y", nodes_y_min)
+                      .attr("width", nodes_x_max - nodes_x_min)
+                      .attr("height", nodes_y_max - nodes_y_min)
+                      // .style("opacity",0);
+                      .style("visibility", "visible")
+                      .style("stroke", "pink")
+                      .style("fill", "lightgrey")
+                      .style("fill-opacity", 0.05)
+                      .style("stroke-width", "2px");
+
+  // Define the lasso
+  lasso = d3.lasso()
+        .closePathDistance(75) // max distance for the lasso loop to be closed
+        .closePathSelect(true) // can items be selected by closing the path?
+        .hoverSelect(true) // can items by selected by hovering over them?
+        .area(lasso_area) // area where the lasso can be started
+        .on("start",lasso_start) // lasso start function
+        .on("draw",lasso_draw) // lasso draw function
+        .on("end",lasso_end) // lasso end function
+        .scales(x_scale, y_scale);
+
+  // Init the lasso on the svg:g that contains the dots
+  svg.call(lasso);
+
+
+
+
+  // var brush = vis.append("g")
+  // .attr("class", "brush")
+  // .call(d3.svg.brush().x(x_scale).y(y_scale)
+  // .on("brushstart", brushstart)
+  // .on("brush", function() {
+  //       var extent = d3.event.target.extent();
+  //       extent[0][0] = x_scale(extent[0][0]);
+  //       extent[0][1] = y_scale(extent[0][1]);
+  //       extent[1][0] = x_scale(extent[1][0]);
+  //       extent[1][1] = y_scale(extent[1][1]);
+  //       node.classed("selected", function(d) {
           
-          return extent[0][0] <= d.x && d.x < extent[1][0]
-              && extent[0][1] <= d.y && d.y < extent[1][1];
-        });
-        dict = [];
-        method_dict = [];
-        var selected_nodes = d3.selectAll("circle.selected")[0];
-        for(var count = 0; count < selected_nodes.length; count += 1) {
-          var temp = selected_nodes[count].getAttribute("content");
-          put_classname_in_dict(temp);
-          put_methodname_in_dict(temp);
-        }
-        var output = "Classes Selected: <br/>";
+  //         return extent[0][0] <= d.x && d.x < extent[1][0]
+  //             && extent[0][1] <= d.y && d.y < extent[1][1];
+  //       });
+  //       dict = [];
+  //       method_dict = [];
+  //       var selected_nodes = d3.selectAll("circle.selected")[0];
+  //       for(var count = 0; count < selected_nodes.length; count += 1) {
+  //         var temp = selected_nodes[count].getAttribute("content");
+  //         put_classname_in_dict(temp);
+  //         put_methodname_in_dict(temp);
+  //       }
+  //       var output = "Classes Selected: <br/>";
 
-        for(var count2 = 0; count2 < dict.length; count2 += 1) {
-          var classCount = dict[count2].value
-          var count_markup = "<span class=\"badge\">" + classCount + "</span>";
-          var className = dict[count2].key.substring("Class: ".length);
-          var temp = count_markup + " " + className + "<br/>";
+  //       for(var count2 = 0; count2 < dict.length; count2 += 1) {
+  //         var classCount = dict[count2].value
+  //         var count_markup = "<span class=\"badge\">" + classCount + "</span>";
+  //         var className = dict[count2].key.substring("Class: ".length);
+  //         var temp = count_markup + " " + className + "<br/>";
             
-          output += temp;  
-        }
-        document.getElementById("classlist").innerHTML = output;
+  //         output += temp;  
+  //       }
+  //       document.getElementById("classlist").innerHTML = output;
         
-        var output2 = "Methods Selected: <br/>";
-        for(var count2 = 0; count2 < method_dict.length; count2 += 1) {
-          var methodName = method_dict[count2].key.substring("Method: ".length);
-          var methodCount = "<span class=\"badge\">" + method_dict[count2].value + "</span>";
-          var temp = methodCount + " " + methodName + "<br/>";
-          output2 += temp;  
-        }
-        document.getElementById("methodlist").innerHTML = output2;
-      })
-  .on("brushend", brushend));
+  //       var output2 = "Methods Selected: <br/>";
+  //       for(var count2 = 0; count2 < method_dict.length; count2 += 1) {
+  //         var methodName = method_dict[count2].key.substring("Method: ".length);
+  //         var methodCount = "<span class=\"badge\">" + method_dict[count2].value + "</span>";
+  //         var temp = methodCount + " " + methodName + "<br/>";
+  //         output2 += temp;  
+  //       }
+  //       document.getElementById("methodlist").innerHTML = output2;
+  //     })
+  // .on("brushend", brushend));
 
-  d3.select("rect.background")
-    .style("visibility", "visible")
-    .style("stroke", "pink")
-    .style("fill", "lightgrey")
-    .style("fill-opacity", 0.05)
-    .style("stroke-width", "2px");
+  // d3.select("rect.background")
+  //   .style("visibility", "visible")
+  //   .style("stroke", "pink")
+  //   .style("fill", "lightgrey")
+  //   .style("fill-opacity", 0.05)
+  //   .style("stroke-width", "2px");
 
   d3.select("rect.background").append("title").text("Selection Mode")
   
@@ -189,6 +220,8 @@ d3.json("brains/nanoxml3.json", function(error, graph) {
 
   node.append("title")
       .text(function(d) { return get_instruction_info(d); });
+
+  lasso.items(d3.selectAll(".node"));
 
   console.log("nodes completed");
 
@@ -427,3 +460,38 @@ function brushstart() {
 function brushend() {
   svg.classed("selected", !d3.event.target.empty());
 }
+
+// Lasso functions to execute while lassoing
+var lasso_start = function() {
+  lasso.items()
+    .attr("r", 5) // reset size
+    .classed({"not_possible":true,"selected":false}); // style as not possible
+};
+
+var lasso_draw = function() {
+  // // Style the possible dots
+  lasso.items().filter(function(d) {return d.possible===true})
+    .classed({"not_possible":false,"possible":true});
+
+  // // Style the not possible dot
+  lasso.items().filter(function(d) {return d.possible===false})
+    .classed({"not_possible":true,"possible":false});
+};
+
+var lasso_end = function() {
+  // // Reset the color of all dots
+  // lasso.items()
+  //    .style("fill", function(d) { return color(d.species); });
+
+  // // Style the selected dots
+  lasso.items().filter(function(d) {return d.selected===true})
+    .classed({"not_possible":false,"possible":false})
+    .attr("r",7);
+
+  
+  // // Reset the style of the not selected dots
+  lasso.items().filter(function(d) {return d.selected===false})
+    .classed({"not_possible":false,"possible":false})
+    .attr("r",5);
+
+};

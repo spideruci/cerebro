@@ -107,3 +107,31 @@ a:active{ color:#008A00; }
 a:focus{ outline: thin dotted; color:#008A00; }
 a:hover, a:active{ outline: 0; }
 
+.lasso path {
+  stroke: rgb(180,180,180);
+  stroke-width:2px;
+}
+
+.lasso .drawn {
+  stroke: white;
+  fill-opacity:.05;
+}
+
+.lasso .loop_close {
+  fill:white;
+  fill-opacity:.05;
+  stroke-dasharray: 4,4;
+}
+
+.lasso .origin {
+  fill:#3399FF;
+  fill-opacity:.5;
+}
+
+.not_possible {
+  fill:rgb(200,200,200);
+}
+
+.possible {
+  fill:#EC888C;
+}
