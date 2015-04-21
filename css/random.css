@@ -67,11 +67,13 @@ div.sourcecode {
 }
 
 .classlist {
-  margin:5px; float:left; overflow-x: scroll;
+  margin:5px; float:left; 
+  /*overflow-x: scroll;*/
 }
 
 .methodlist {
-  margin:5px; float:left; overflow-y: scroll; overflow-x: scroll;
+  margin:5px; float:left; 
+  /*overflow-y: scroll; overflow-x: scroll;*/
 }
 
 body {

@@ -117,7 +117,7 @@ d3.json("brains/nanoxml3.json", function(error, graph) {
     .range([nodes_y_min - 20, nodes_y_max + 20]);
 
   // Create the area where the lasso event can be triggered
-  var lasso_area = svg.append("rect")
+  var lasso_area = vis.append("rect")
                       .attr("x", nodes_x_min)
                       .attr("y", nodes_y_min)
                       .attr("width", nodes_x_max - nodes_x_min)
@@ -133,7 +133,7 @@ d3.json("brains/nanoxml3.json", function(error, graph) {
   lasso = d3.lasso()
         .closePathDistance(75) // max distance for the lasso loop to be closed
         .closePathSelect(true) // can items be selected by closing the path?
-        .hoverSelect(true) // can items by selected by hovering over them?
+        .hoverSelect(false) // can items by selected by hovering over them?
         .area(lasso_area) // area where the lasso can be started
         .on("start",lasso_start) // lasso start function
         .on("draw",lasso_draw) // lasso draw function
@@ -508,9 +508,8 @@ var activate_selection = function(selected_nodes) {
     put_methodname_in_dict(temp);
   }
 
-
-  var output = "Classes Selected: <br/>";
-
+  var output = "";
+  if(dict.length != 0) output = "<b>Classes Selected:</b> <br/>";
   for (var count2 = 0; count2 < dict.length; count2 += 1) {
     var classCount = dict[count2].value
     var count_markup = "<span class=\"badge\">" + classCount + "</span>";
@@ -519,14 +518,17 @@ var activate_selection = function(selected_nodes) {
 
     output += temp;
   }
+
   document.getElementById("classlist").innerHTML = output;
 
-  var output2 = "Methods Selected: <br/>";
+  var output2 = "";
+  if(method_dict.length != 0) output2 = "<b>Methods Selected:</b> <br/>";
   for (var count2 = 0; count2 < method_dict.length; count2 += 1) {
     var methodName = method_dict[count2].key.substring("Method: ".length);
     var methodCount = "<span class=\"badge\">" + method_dict[count2].value + "</span>";
     var temp = methodCount + " " + methodName + "<br/>";
     output2 += temp;
   }
+
   document.getElementById("methodlist").innerHTML = output2;
 }
