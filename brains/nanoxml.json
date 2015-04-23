@@ -2203,5 +2203,6 @@
 {"@type":"org.spideruci.analysis.trace.DynamicFlowGraph$FlowIdent","name":"testvw_82.trc","size":8072},
 {"@type":"org.spideruci.analysis.trace.DynamicFlowGraph$FlowIdent","name":"zxu9.trc","size":2045},
 {"@type":"org.spideruci.analysis.trace.DynamicFlowGraph$FlowIdent","name":"testvw_51.trc","size":7761},
-{"@type":"org.spideruci.analysis.trace.DynamicFlowGraph$FlowIdent","name":"testvw_41.trc","size":1870}
+{"@type":"org.spideruci.analysis.trace.DynamicFlowGraph$FlowIdent","name":"testvw_41.trc","size":1870},
+{"@type":"org.spideruci.analysis.trace.DynamicFlowGraph$FlowIdent","name":"dummy_duo.trc","size":31021}
 ]}

@@ -65,7 +65,7 @@
     </label>
   </div>
 
-  <div class="label label-default">Select Execution to Repaly</div>
+  <div class="label label-default">Select Execution to Replay</div>
 
   <select id="execution-selector" onchange="change_execution(this.value)" class="form-control" style="margin-top:5px;"></select> 
   <br/>
@@ -108,7 +108,17 @@
 
 
   
-  <div>Subject Program: <a href="http://nanoxml.sourceforge.net/orig/" target=_blank>NanoXML</a></div>
+  <!-- <div>Subject Program: <a href="http://nanoxml.sourceforge.net/orig/" target=_blank>NanoXML</a></div> -->
+
+  <div style="width:20%; float:left; margin-bottom:10px">
+    Subject Program: 
+    <select id="subject-selector" onchange="change_subject(value)" class="form-control" style="margin-top:5px;">
+      <option value="nanoxml">NanoXML</option>
+      <option value="jtopas">Jtopas</option>
+      <option value="javac">Javac</option>
+      <option value="tetris">Tetris</option>
+    </select> 
+  </div>
 
   <!-- <input type="text" style="border-style: none; width: 150px;" name="state" readonly="readonly" value="Loading ... please wait."> -->
   <!-- <label for="state" style="font-size: 13px;font-family: Arial;" id="timeview"></label>  -->

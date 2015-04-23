@@ -82,7 +82,7 @@ var width = document.getElementsByTagName("body")[0].offsetWidth,
 
 var force = d3.layout.force().size([width, height]);
 
-var svg = d3.select("body").append("div").style("height", "80vh").append("svg")
+var svg = d3.select("body").append("div").attr("id", "vectors").style("height", "80vh").append("svg")
     .attr("pointer-events", "all")
     .call(d3.behavior.zoom().on("zoom", redraw))
     ;
@@ -136,7 +136,10 @@ var is_stop_class = function(class_name) {
 
 var stop_class_color = "#444"
 
-d3.json("brains/nanoxml.json", function(error, graph) {
+
+
+
+var init = function(error, graph) {
   traces = graph.traces;
   traces_pointer = 0;
   ddg_nodes = graph.nodes;
@@ -319,7 +322,9 @@ d3.json("brains/nanoxml.json", function(error, graph) {
                 return get_instruction_info(d); 
               });
 
-  var exec_options = d3.select("select").selectAll("option")
+  d3.select("select#execution-selector").selectAll("option").remove();              
+
+  var exec_options = d3.select("select#execution-selector").selectAll("option")
                         .data(graph.traces)
                         .enter().append("option")
                         .attr("value", function(d, i) {return i;})
@@ -337,7 +342,46 @@ d3.json("brains/nanoxml.json", function(error, graph) {
 
   magic(links, node, width, height);
 
-});
+}
+
+var subject = "";
+var initate = function(subject_name) {
+  subject = subject_name;
+  d3.json("brains/" + subject_name + ".json", init);
+}
+
+initate("nanoxml");
+
+var change_subject = function(value) {
+  vis.remove();
+  svg.remove();
+
+  svg = d3.select("div#vectors").append("svg")
+    .attr("pointer-events", "all")
+    .call(d3.behavior.zoom().on("zoom", redraw))
+    ;
+
+  vis = svg.append('svg:g');
+
+  start = new Date().getTime();
+  time = 0;
+  trace = null;
+  traces;
+  traces_pointer;
+  ddg_nodes;
+  ddg_links;
+  should_transform = true;
+  translate_x = null;
+  translate_y = null;
+  dict = [];
+  method_dict = [];
+  maxDistance = 0;
+  max_wt = 1;
+  lasso;
+  all_classes = [];
+  color_picker;
+  initate(value);
+}
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
@@ -415,7 +459,7 @@ var blink3 = function() {
   playstate.innerHTML = "Fetching Trace";
   var trace_name = traces[traces_pointer].name;
 
-  d3.json("traces/nanoxml/" + trace_name + ".json", function(error, json) {
+  d3.json("traces/" + subject + "/" + trace_name + ".json", function(error, json) {
     if (error) return console.warn(error);
     trace = json;
     playstate.innerHTML = "Playing";
