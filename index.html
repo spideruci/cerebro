@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 
 
-<link href="/css/random.css" media="all" rel="stylesheet" type="text/css"/>
-<link href="/css/bootstrap.css" media="all" rel="stylesheet" type="text/css"/>
+<link href="css/random.css" media="all" rel="stylesheet" type="text/css"/>
+<link href="css/bootstrap.css" media="all" rel="stylesheet" type="text/css"/>
 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script src="javascripts/bootstrap.min.js"></script>
 
 
 
@@ -52,43 +52,47 @@
 
 <div style="padding-bottom:20px; margin-top:-20px"><small>Developed by: Vijay Krishna Palepu and James A. Jones, <a href="http://spideruci.org" target="_blank">SpiderLab, UCI</a></small></div>
 
-  <div class="label label-default">Select Execution to Run: </div>
-
-  <select id="execution-selector" onchange="change_execution(this.value)" class="form-control" style="margin-top:5px;"></select> 
-  <br/>
   
-
+  
+  
   <button type="button" class="btn btn-primary" onclick="toggle_edges()" disabled>Toggle Edges</button> 
-  <button type="button" class="btn btn-primary" onclick="remove_edge_weights()" disabled>Remove Edge Weights</button> 
-  <button type="button" class="btn btn-primary" onclick="add_edge_weights()" disabled>Add Edge Weights</button> 
+  <button type="button" class="btn btn-primary" weights="1" onclick="toggle_edge_weights(this)" disabled>Toggle Edge Weights</button> 
+  <!-- <button type="button" class="btn btn-primary" onclick="add_edge_weights()" disabled>Add Edge Weights</button>  -->
 
   <div class="checkbox">
     <label>
-      <input type="checkbox" name="lock_trans" value="hold" onchange="lock_transformation(this)" > Lock Transformation
+      <input type="checkbox" name="lock_trans" value="hold" onchange="lock_transformation(this)" > Freeze Layout
     </label>
   </div>
+
+  <div class="label label-default">Select Execution to Repaly</div>
+
+  <select id="execution-selector" onchange="change_execution(this.value)" class="form-control" style="margin-top:5px;"></select> 
+  <br/>
 
   <!-- <input type="checkbox" name="lock_trans" value="hold" onchange="lock_transformation(this)" > Lock Transformation<br> -->
   
   <br/>
 
 
-  <button type="button" class="btn btn-success" onclick="blink3()" disabled>Re-Play Execution</button>   
-  <button type="button" class="btn btn-warning" onclick="pause()" disabled>Pause Execution</button>
-  <button type="button" class="btn btn-success" onclick="resume()" disabled>Resume Execution</button>
-  <br>
-  <span class="label label-default">Execution Status:</span>
+  <button type="button" class="btn btn-success" onclick="blink3()" disabled title="Play Execution From Start">
+    <span class="glyphicon glyphicon-off" name="begin_execution" aria-hidden="true" title="Play Execution From Begining"></span>
+  </button>
+
+  <button type="button" class="btn btn-warning" onclick="playpause()" disabled title="Pause/Resume Execution">
+    <span class="glyphicon glyphicon-pause" aria-hidden="true" name="playpause" title="Play"/>
+  </button>
+  <!-- <span class="label label-default">Execution Status:</span> -->
   <span name="playstate" style="font-size: 13px;font-family: Arial;margin-bottom:15px;"></span>
-  <br/>
-  <!-- <br/> -->
-  
+  <br/>  
   
   <span class="label label-default">Program-Execution Time Slider</span>
   <input name="slider" class="slider" type="range" style="margin-top:5px;" min="0" value="0" step="1" onchange="slide(this.value)" /> 
 
   <br/>
   
-  <span class="label label-default">Slowdown:</span> <span name="slowdownvalue" style="font-size: 13px;font-family: Arial;margin-bottom:15px;"></span>
+  <span class="label label-default">Slowdown:</span>
+  <span name="slowdownvalue" style="font-size: 13px;font-family: Arial;margin-bottom:15px;"></span>
   <input name="slowdown" class="slowdown" style="margin-top:5px;" type="range"  min="1" max="201" value="1" step="10" onchange="slowdown(this.value)" /> <br/>
   <span class="label label-default" >Current Executing Instruction:</span><br/>
   <div class="sourcecode" name="curr_insn"></div>
@@ -106,8 +110,9 @@
   
   <div>Subject Program: <a href="http://nanoxml.sourceforge.net/orig/" target=_blank>NanoXML</a></div>
 
-  <input type="text" style="border-style: none; width: 150px;" name="state" readonly="readonly" value="Loading ... please wait.">
-  <label for="state" style="font-size: 13px;font-family: Arial;" id="timeview"></label> <br/>
+  <!-- <input type="text" style="border-style: none; width: 150px;" name="state" readonly="readonly" value="Loading ... please wait."> -->
+  <!-- <label for="state" style="font-size: 13px;font-family: Arial;" id="timeview"></label>  -->
+  <br/>
 
 <script src="javascripts/d3.v3/d3.v3.min.js"></script>
 <script src="javascripts/d3.v3/plugins/lasso.js"></script>
