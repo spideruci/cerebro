@@ -87,6 +87,7 @@
   <br/>  
   
   <span class="label label-default">Program-Execution Time Slider</span>
+  <span id="messages" class="label label-default"></span>
   <input name="slider" class="slider" type="range" style="margin-top:5px;" min="0" value="0" step="1" onchange="slide(this.value)" /> 
 
   <br/>
@@ -124,6 +125,7 @@
   <!-- <label for="state" style="font-size: 13px;font-family: Arial;" id="timeview"></label>  -->
   <br/>
 
+<script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
 <script src="javascripts/d3.v3/d3.v3.min.js"></script>
 <script src="javascripts/d3.v3/plugins/lasso.js"></script>
 <script src="javascripts/thesteadybrain.js"></script>

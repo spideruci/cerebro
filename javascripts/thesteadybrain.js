@@ -1,5 +1,22 @@
-// var color = d3.scale.category10();
+var socket = io.connect();
 
+socket.emit('client message', {'text': 'Hello from the client!!'});
+socket.on('server message', function(message) {
+  console.log(message.text);
+});
+
+var node_id_stream = [];
+var done = true;
+socket.on('private server message', function(message) {
+  d3.select('#messages').text(message.text + " " + message.msg_count);
+  var node_id = parseInt(message.text);
+  if(node_id != NaN && node_id != -1) {
+    //node_id_stream.push(node_id);
+
+    animate_node(node_id);
+
+  }
+});
 
 var color_palete = function(number) {
   var colors = [];
@@ -249,64 +266,6 @@ var init = function(error, graph) {
 
   // Init the lasso on the svg:g that contains the dots
   vis.call(lasso);
-
-
-
-
-  // var brush = vis.append("g")
-  // .attr("class", "brush")
-  // .call(d3.svg.brush().x(x_scale).y(y_scale)
-  // .on("brushstart", brushstart)
-  // .on("brush", function() {
-  //       var extent = d3.event.target.extent();
-  //       extent[0][0] = x_scale(extent[0][0]);
-  //       extent[0][1] = y_scale(extent[0][1]);
-  //       extent[1][0] = x_scale(extent[1][0]);
-  //       extent[1][1] = y_scale(extent[1][1]);
-  //       node.classed("selected", function(d) {
-          
-  //         return extent[0][0] <= d.x && d.x < extent[1][0]
-  //             && extent[0][1] <= d.y && d.y < extent[1][1];
-  //       });
-  //       dict = [];
-  //       method_dict = [];
-  //       var selected_nodes = d3.selectAll("circle.selected")[0];
-  //       for(var count = 0; count < selected_nodes.length; count += 1) {
-  //         var temp = selected_nodes[count].getAttribute("content");
-  //         put_classname_in_dict(temp);
-  //         put_methodname_in_dict(temp);
-  //       }
-  //       var output = "Classes Selected: <br/>";
-
-  //       for(var count2 = 0; count2 < dict.length; count2 += 1) {
-  //         var classCount = dict[count2].value
-  //         var count_markup = "<span class=\"badge\">" + classCount + "</span>";
-  //         var className = dict[count2].key.substring("Class: ".length);
-  //         var temp = count_markup + " " + className + "<br/>";
-            
-  //         output += temp;  
-  //       }
-  //       document.getElementById("classlist").innerHTML = output;
-        
-  //       var output2 = "Methods Selected: <br/>";
-  //       for(var count2 = 0; count2 < method_dict.length; count2 += 1) {
-  //         var methodName = method_dict[count2].key.substring("Method: ".length);
-  //         var methodCount = "<span class=\"badge\">" + method_dict[count2].value + "</span>";
-  //         var temp = methodCount + " " + methodName + "<br/>";
-  //         output2 += temp;  
-  //       }
-  //       document.getElementById("methodlist").innerHTML = output2;
-  //     })
-  // .on("brushend", brushend));
-
-  // d3.select("rect.background")
-  //   .style("visibility", "visible")
-  //   .style("stroke", "pink")
-  //   .style("fill", "lightgrey")
-  //   .style("fill-opacity", 0.05)
-  //   .style("stroke-width", "2px");
-
-  // d3.select("rect.background").append("title").text("Selection Mode")
   
   var node = vis.selectAll(".node")
               .data(graph.nodes)
@@ -317,9 +276,6 @@ var init = function(error, graph) {
                 if(d.colorGroup2 === all_classes.length) 
                   return stop_class_color;
                 return color_picker(d.colorGroup2); 
-              })
-              .attr("content", function(d) { 
-                return get_instruction_info(d); 
               });
 
   d3.select("select#execution-selector").selectAll("option").remove();              
@@ -334,7 +290,7 @@ var init = function(error, graph) {
   
 
   node.append("title")
-      .text(function(d) { return d.id + "\n" + get_instruction_info(d); });
+      .text(function(d) { return d.id + "\n" + get_instruction_info(d, "\n"); });
 
   lasso.items(d3.selectAll(".node"));
 
@@ -418,7 +374,6 @@ var playpause = function() {
     playpause_span.setAttribute("class", "glyphicon glyphicon-play")  
     pause();
   }
-  
 }
 
 var pause = function() {
@@ -477,54 +432,83 @@ var slowdown = function(value) {
   slowdownvalue.innerHTML = slider_delay;
 }
 
+// var slide = function(value) {
+//   var nodes = vis.selectAll(".node");
+//   var length = traces[traces_pointer].size;
+//   var step_size = 1;
+//   var counter = value;
+//   var counter2 = 0;
+//   node = nodes[0][trace[counter] - 1];
+
+//   t00 = d3.select(node).transition().duration(10);
+//   t00.delay(0).each("end", function() {
+//     counter2 = value;
+    
+//     if(counter2 * step_size < length) {
+//       var node_id = trace[counter2 * step_size];
+//       print_sourceline_on_console(node_id);
+//     }
+
+//     if(value >= length - 50) {
+//       document.getElementsByTagName("button")[3].disabled = false;
+//     }
+//   })
+//   .attr("r", "12.5")
+//   .style("fill", "white");
+
+//   var t11 = t00.transition().duration(10);
+//   t11.delay(500)
+//   .attr("r", "5")
+//   .style("fill", function(d) { 
+//     if(d.colorGroup2 === all_classes.length) return stop_class_color; 
+//     return color_picker(d.colorGroup2); 
+//   });
+// }
+
 var slide = function(value) {
   var nodes = vis.selectAll(".node");
   var length = traces[traces_pointer].size;
   var step_size = 1;
-  var playback_delay = 10;
   var counter = value;
   var counter2 = 0;
-  node = nodes[0][trace[counter] - 1]
-  // console.log(node.__data__.id === trace[counter])
-  // console.log(node.__data__.id + " " + trace[counter] + " " + counter);
-  t00 = d3.select(node).transition().duration(10);
-  t00.delay(function(d, j) { return (50) + (playback_delay); })
-  .each("end", function() {
-    counter2 = value;
-    
-    if(counter2 * step_size < length) {
-      var curr_insn_div = document.getElementsByName("curr_insn")[0];
-      var find = '\n';
-      var re = new RegExp(find, 'g');
-      curr_insn_div.innerHTML = get_instruction_info(ddg_nodes[trace[counter2 * step_size]]).replace(re, "<br/>"); 
-    }
+  node = nodes[0][trace[counter] - 1];
+  animate_node(trace[counter]);
+}
 
-    if(value >= length - 50) {
-      document.getElementsByTagName("button")[3].disabled = false;
-    }
+var animate_node = function(node_id) {
+  var nodes = vis.selectAll(".node");
+  var node = nodes[0][node_id - 1];
+  var insn = node.__data__;
+  t00 = d3.select(node).transition().duration(1);
+  t00.delay(0).each("end", function() {
+    print_sourceline_on_console(insn);
   })
   .attr("r", "12.5")
   .style("fill", "white");
 
-  var t11 = t00.transition().duration(10);
-  t11.delay(function(d, k) { return (50) + 500  + (playback_delay); })
-  .each("end", function() {
-
-  })
+  var t11 = t00.transition().duration(1);
+  t11.delay(500)
   .attr("r", "5")
-  .style("fill", 
-    function(d) { 
-      if(d.colorGroup2 === all_classes.length) return stop_class_color; 
-      return color_picker(d.colorGroup2); 
-    });
+  .style("fill", function(d) { 
+    if(d.colorGroup2 === all_classes.length) return stop_class_color; 
+    return color_picker(d.colorGroup2); 
+  });
 }
 
-var get_instruction_info = function(insn) {
+var print_sourceline_on_console = function(insn) {
+  var curr_insn_div = document.getElementsByName("curr_insn")[0];
+  var find = '\n';
+  var re = new RegExp('\n', 'g');
+  //var insn = ddg_nodes[node_id - 1];
+  curr_insn_div.innerHTML = get_instruction_info(insn, "<br/>");
+}
+
+var get_instruction_info = function(insn, sep) {
   var str_temp = "";
   str_temp += "Line: " + insn.lineNum + ",";
-  str_temp += "\nMethod: " + insn.methodName + ",";
-  str_temp += "\nClass: " + insn.className + ",";
-  str_temp += "\nSource Code Line: " + "[missing data]";
+  str_temp += sep + "Method: " + insn.methodName + ",";
+  str_temp += sep + "Class: " + insn.className + ",";
+  str_temp += sep + "Source Code Line: " + "[missing data]";
   return str_temp;
 }
 
@@ -586,56 +570,6 @@ var lock_transformation = function(checkbox) {
   }
 }
 
-var put_classname_in_dict = function(text) {
-  var start = text.indexOf("Class:");
-  var end = text.indexOf("\nSource Code Line:");
-  if(start == -1 || end == -1) return false;
-  sub = text.substring(start, end);
-  var contains = false;
-  var result = null;
-  for(var i = 0; i < dict.length; i += 1) {
-    if(dict[i].key === sub) {
-      result = dict[i];
-      contains = true;  
-      break;
-    }
-  }
-  if(contains) {
-    if(parseInt(result.value)) {
-      result.value += 1;
-    } else {
-      result.value = 1;
-    }
-  } else {
-    dict[dict.length] = {key: sub, value: 1}
-  }
-}
-
-var put_methodname_in_dict = function(text) {
-  var start = text.indexOf("Method:");
-  var end = text.indexOf("\nClass:");
-  if(start == -1 || end == -1) return false;
-  sub = text.substring(start, end);
-  var contains = false;
-  var result = null;
-  for(var i = 0; i < method_dict.length; i += 1) {
-    if(method_dict[i].key === sub) {
-      result = method_dict[i];
-      contains = true;  
-      break;
-    }
-  }
-  if(contains) {
-    if(parseInt(result.value)) {
-      result.value += 1;
-    } else {
-      result.value = 1;
-    }
-  } else {
-    method_dict[method_dict.length] = {key: sub, value: 1}
-  }
-} 
-
 function brushstart() {
   svg.classed("selected", true);
 }
@@ -669,7 +603,7 @@ var lasso_end = function() {
   // // Style the selected dots
   var selection = lasso.items().filter(function(d) {return d.selected===true});
   selection.classed({"not_possible":false,"possible":false})
-           .attr("r",7);
+           .attr("r",10);
 
   
   // // Reset the style of the not selected dots
@@ -679,6 +613,69 @@ var lasso_end = function() {
     
   activate_selection(selection[0])
 };
+
+var put_classname_in_dict = function(classname) {
+  var contains = false;
+  var result = null;
+  for(var i = 0; i < dict.length; i += 1) {
+    if(dict[i].key === classname) {
+      result = dict[i];
+      contains = true;  
+      break;
+    }
+  }
+  if(contains) {
+    if(parseInt(result.value)) {
+      result.value += 1;
+    } else {
+      result.value = 1;
+    }
+  } else {
+    dict[dict.length] = {key: classname, value: 1}
+  }
+}
+
+var put_methodname_in_dict = function(methodname) {
+  var contains = false;
+  var result = null;
+  for(var i = 0; i < method_dict.length; i += 1) {
+    if(method_dict[i].key === methodname) {
+      result = method_dict[i];
+      contains = true;  
+      break;
+    }
+  }
+  if(contains) {
+    if(parseInt(result.value)) {
+      result.value += 1;
+    } else {
+      result.value = 1;
+    }
+  } else {
+    method_dict[method_dict.length] = {key: methodname, value: 1}
+  }
+}
+
+var put_in_dict = function(name, temp_dict, color) {
+  var contains = false;
+  var result = null;
+  for(var i = 0; i < temp_dict.length; i += 1) {
+    if(temp_dict[i].key === name) {
+      result = temp_dict[i];
+      contains = true;  
+      break;
+    }
+  }
+  if(contains) {
+    if(parseInt(result.value)) {
+      result.value += 1;
+    } else {
+      result.value = 1;
+    }
+  } else {
+    temp_dict[temp_dict.length] = {key: name, value: 1, "color": color}
+  }
+}
 
 var activate_selection = function(selected_nodes) {
   var clean_type_desc = function(name) {
@@ -691,9 +688,10 @@ var activate_selection = function(selected_nodes) {
   method_dict = [];
   
   for (var count = 0; count < selected_nodes.length; count += 1) {
-    var temp = selected_nodes[count].getAttribute("content");
-    put_classname_in_dict(temp);
-    put_methodname_in_dict(temp);
+    var data = selected_nodes[count].__data__;
+    color = color_picker(data.colorGroup2);
+    put_in_dict(data.className, dict, color);
+    put_in_dict(data.methodName, method_dict, color);
   }
 
   dict = dict.sort(function (a, b) {
@@ -703,9 +701,11 @@ var activate_selection = function(selected_nodes) {
   var output = "";
   if(dict.length != 0) output = "<b>Selection's Class Distribution</b> <br/>";
   for (var count2 = 0; count2 < dict.length; count2 += 1) {
-    var classCount = dict[count2].value
-    var count_markup = "<span class=\"badge\">" + classCount + "</span>";
-    var className = dict[count2].key.substring("Class: ".length).replace(",", "");
+    var classCount = dict[count2].value;
+    var color = dict[count2].color;
+    var span_start = '<span class="badge" style="background-color:white; color:black">'.replace('white', color);
+    var count_markup = span_start + classCount + "</span>";
+    var className = dict[count2].key;
     var temp = count_markup + " " + className + "<br/>";
 
     output += temp;
@@ -721,10 +721,12 @@ var activate_selection = function(selected_nodes) {
   
   if(method_dict.length != 0) output2 = "<b>Selection's Method Distribution</b> <br/>";
   for (var count2 = 0; count2 < method_dict.length; count2 += 1) {
-    var methodName = method_dict[count2].key.substring("Method: ".length);
+    var methodName = method_dict[count2].key;
     methodName = methodName.replace("<", "&lt;", "g").replace(">", "&gt;", "g");
     methodName = clean_type_desc(methodName).replace(",", "");
-    var methodCount = "<span class=\"badge\">" + method_dict[count2].value + "</span>";
+    var color = method_dict[count2].color;
+    var span_start = '<span class="badge" style="background-color:white; color:black">'.replace('white', color);
+    var methodCount = span_start + method_dict[count2].value + "</span>";
     var temp = methodCount + " " + methodName + "<br/>";
     output2 += temp;
   }
