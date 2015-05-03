@@ -1,3 +1,4 @@
+var fs = require('fs');
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
@@ -50,6 +51,21 @@ io.on('connection', function(socket) {
     console.log("Incoming private message from server!")
     console.log(message);
     socket.emit('private server message', {'text' : 'Hello!' + message.date})
+  });
+
+  socket.on("node selection", function(message) {
+    var log_name = message.subject + '-' + Date.now() + '.log';
+    var file = fs.createWriteStream(log_name);
+    file.on('error', function(err) { 
+      console.log('could not save...\n' + err);
+    });
+    
+    message.selection.forEach(function(element) {
+      file.write(JSON.stringify(element) + '\n'); 
+    });
+    
+    file.end();
+    console.log();
   });
 
   socket.on('disconnect', function() {

@@ -101,8 +101,7 @@ var force = d3.layout.force().size([width, height]);
 
 var svg = d3.select("body").append("div").attr("id", "vectors").style("height", "80vh").append("svg")
     .attr("pointer-events", "all")
-    .call(d3.behavior.zoom().on("zoom", redraw))
-    ;
+    .call(d3.behavior.zoom().on("zoom", redraw));
 
 var vis = svg.append('svg:g');
 
@@ -141,6 +140,13 @@ var max_wt = 1;
 var lasso;
 var all_classes = [];
 var color_picker;
+var stop_class_color = "#444"
+
+var module_color = function(data) {
+  if(data.colorGroup2 === all_classes.length) 
+    return stop_class_color;
+  return color_picker(data.colorGroup2);
+}
 
 var is_stop_class = function(class_name) {
   if(class_name === null 
@@ -151,7 +157,7 @@ var is_stop_class = function(class_name) {
   return false;
 }
 
-var stop_class_color = "#444"
+
 
 
 
@@ -273,9 +279,7 @@ var init = function(error, graph) {
               .attr("class", "node")
               .attr("r", 5)
               .style("fill", function(d) {
-                if(d.colorGroup2 === all_classes.length) 
-                  return stop_class_color;
-                return color_picker(d.colorGroup2); 
+                return module_color(d);
               });
 
   d3.select("select#execution-selector").selectAll("option").remove();              
@@ -432,39 +436,6 @@ var slowdown = function(value) {
   slowdownvalue.innerHTML = slider_delay;
 }
 
-// var slide = function(value) {
-//   var nodes = vis.selectAll(".node");
-//   var length = traces[traces_pointer].size;
-//   var step_size = 1;
-//   var counter = value;
-//   var counter2 = 0;
-//   node = nodes[0][trace[counter] - 1];
-
-//   t00 = d3.select(node).transition().duration(10);
-//   t00.delay(0).each("end", function() {
-//     counter2 = value;
-    
-//     if(counter2 * step_size < length) {
-//       var node_id = trace[counter2 * step_size];
-//       print_sourceline_on_console(node_id);
-//     }
-
-//     if(value >= length - 50) {
-//       document.getElementsByTagName("button")[3].disabled = false;
-//     }
-//   })
-//   .attr("r", "12.5")
-//   .style("fill", "white");
-
-//   var t11 = t00.transition().duration(10);
-//   t11.delay(500)
-//   .attr("r", "5")
-//   .style("fill", function(d) { 
-//     if(d.colorGroup2 === all_classes.length) return stop_class_color; 
-//     return color_picker(d.colorGroup2); 
-//   });
-// }
-
 var slide = function(value) {
   var nodes = vis.selectAll(".node");
   var length = traces[traces_pointer].size;
@@ -490,8 +461,7 @@ var animate_node = function(node_id) {
   t11.delay(500)
   .attr("r", "5")
   .style("fill", function(d) { 
-    if(d.colorGroup2 === all_classes.length) return stop_class_color; 
-    return color_picker(d.colorGroup2); 
+    return module_color(d);
   });
 }
 
@@ -510,6 +480,23 @@ var get_instruction_info = function(insn, sep) {
   str_temp += sep + "Class: " + insn.className + ",";
   str_temp += sep + "Source Code Line: " + "[missing data]";
   return str_temp;
+}
+
+var toggle_color = function(btn) {
+  var isColored = btn.getAttribute("colored");
+  if(isColored === "0") {
+    d3.selectAll(".node").style("fill", 
+      function(d) { 
+        return module_color(d); 
+      });
+    btn.setAttribute("colored", "1");
+  } else if(isColored === "1") {
+    d3.selectAll(".node").style("fill", function(d) {
+      if(d.colorGroup2 === all_classes.length) return stop_class_color;
+      return "white"
+    });
+    btn.setAttribute("colored", "0")
+  }
 }
 
 var toggle_edges = function() {
@@ -614,48 +601,6 @@ var lasso_end = function() {
   activate_selection(selection[0])
 };
 
-var put_classname_in_dict = function(classname) {
-  var contains = false;
-  var result = null;
-  for(var i = 0; i < dict.length; i += 1) {
-    if(dict[i].key === classname) {
-      result = dict[i];
-      contains = true;  
-      break;
-    }
-  }
-  if(contains) {
-    if(parseInt(result.value)) {
-      result.value += 1;
-    } else {
-      result.value = 1;
-    }
-  } else {
-    dict[dict.length] = {key: classname, value: 1}
-  }
-}
-
-var put_methodname_in_dict = function(methodname) {
-  var contains = false;
-  var result = null;
-  for(var i = 0; i < method_dict.length; i += 1) {
-    if(method_dict[i].key === methodname) {
-      result = method_dict[i];
-      contains = true;  
-      break;
-    }
-  }
-  if(contains) {
-    if(parseInt(result.value)) {
-      result.value += 1;
-    } else {
-      result.value = 1;
-    }
-  } else {
-    method_dict[method_dict.length] = {key: methodname, value: 1}
-  }
-}
-
 var put_in_dict = function(name, temp_dict, color) {
   var contains = false;
   var result = null;
@@ -677,7 +622,20 @@ var put_in_dict = function(name, temp_dict, color) {
   }
 }
 
+var dump_selection_to_server = function(selected_nodes) {
+  var selected_data = selected_nodes.map(function(element) { 
+    return element.__data__.id; 
+  });
+  var message = {'subject' : subject, 'selection' : selected_data};
+  socket.emit('node selection', message);
+}
+
 var activate_selection = function(selected_nodes) {
+  if(selected_nodes === null || selected_nodes.length === 0) {
+    return;
+  }
+
+  dump_selection_to_server(selected_nodes);
   var clean_type_desc = function(name) {
     var re = new RegExp("L[a-z0-9]+/", "g");
     var re2 = new RegExp("[a-z0-9]+/", "g");
@@ -689,7 +647,7 @@ var activate_selection = function(selected_nodes) {
   
   for (var count = 0; count < selected_nodes.length; count += 1) {
     var data = selected_nodes[count].__data__;
-    color = color_picker(data.colorGroup2);
+    color = module_color(data);
     put_in_dict(data.className, dict, color);
     put_in_dict(data.methodName, method_dict, color);
   }
@@ -733,3 +691,4 @@ var activate_selection = function(selected_nodes) {
 
   document.getElementById("methodlist").innerHTML = output2;
 }
+
