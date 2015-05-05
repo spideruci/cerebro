@@ -52,12 +52,15 @@
 
 <div style="padding-bottom:20px; margin-top:-20px"><small>Developed by: Vijay Krishna Palepu and James A. Jones, <a href="http://spideruci.org" target="_blank">SpiderLab, UCI</a></small></div>
 
-  
-  
-  
+  <div class="label label-default">Control Edge Visibility/Thickness</div>  
   <button style="margin-top:5px;" type="button" class="btn btn-primary btn-sm" onclick="toggle_edges()" disabled>Toggle Edges</button>
   <button style="margin-top:5px;" type="button" class="btn btn-primary btn-sm" weights="1" onclick="toggle_edge_weights(this)" disabled>Toggle Edge Weights</button>
-  <button style="margin-top:5px;" type="button" class="btn btn-primary btn-sm" colored="1" onclick="toggle_color(this)" disabled>Toggle Color</button>
+
+  <br/>
+  <div class="label label-default">Control Node Colors</div>
+  <button style="margin-top:5px;" type="button" class="btn btn-primary btn-sm" colored="1" onclick="add_color()" disabled>Add Node-Colors</button>
+  <button style="margin-top:5px;" type="button" class="btn btn-primary btn-sm" colored="1" onclick="remove_color()" disabled>Remove Node-Colors</button>
+
 
 
   <div class="checkbox">
@@ -96,11 +99,19 @@
   <span class="label label-default">Slowdown:</span>
   <span name="slowdownvalue" style="font-size: 13px;font-family: Arial;margin-bottom:15px;"></span>
   <input name="slowdown" class="slowdown" style="margin-top:5px;" type="range"  min="1" max="201" value="1" step="10" onchange="slowdown(this.value)" /> <br/>
-  <span class="label label-default" >Current Executing Instruction</span><br/>
-  <div class="sourcecode" name="curr_insn"></div>
 
-  
+
+  <button style="margin-bottom:10px;" type="button" class="btn btn-default btn-sm" colored="1" onclick="select_colored()" disabled>Select Colored Nodes</button>
+  <br/>
+
+  <div class="label label-default">Node Selection History</div>
+  <select id="selection-history" onchange="show_selection(value)" class="form-control" style="margin-top:5px;"> </select>
+
+  <br/>
  
+  <div class="label label-default">Current Node Selection</div>
+
+  <br/>
 
   <div id="classlist" class="classlist"></div>
   <div id="methodlist" class="methodlist"></div>
@@ -111,17 +122,20 @@
 
   
   <!-- <div>Subject Program: <a href="http://nanoxml.sourceforge.net/orig/" target=_blank>NanoXML</a></div> -->
-
-  <div style="width:20%; float:left; margin-bottom:10px">
-    <span class = "label label-default">Select Subject Program</span>
-    <select id="subject-selector" onchange="change_subject(value)" class="form-control" style="margin-top:5px;">
+  
+  <div style="width:40%; float:left; margin-bottom:10px">
+    <span class = "label label-default">Select Subject Program</span> 
+  <select id="subject-selector" onchange="change_subject(value)" class="form-control" style="margin-top:5px;">
       <option value="nanoxml">NanoXML</option>
-      <option value="jtopas">Jtopas</option>
+      <!-- <option value="jtopas">Jtopas</option> -->
+      <option value="jpacman">JPacman</option>
       <option value="javac">Javac</option>
       <option value="tetris">Tetris</option>
-      <option value="jpacman">JPacman</option>
-      <option value="javac2">Javac 2</option>
+      <!-- <option value="javac1">Javac</option> -->
+      <option value="jpacman-1">Training</option>
     </select> 
+    <span class="label label-default" >Current Executing Instruction</span><br/>
+    <div class="sourcecode" name="curr_insn"></div>
   </div>
 
   <!-- <input type="text" style="border-style: none; width: 150px;" name="state" readonly="readonly" value="Loading ... please wait."> -->

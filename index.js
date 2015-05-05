@@ -1,3 +1,4 @@
+var stream = require('stream');
 var fs = require('fs');
 var express = require('express');
 var app = express();
@@ -20,6 +21,12 @@ var send_msg = function(msg) {
   message_count += 1;
   socket.emit('private server message', 
     {"text" : msg, "msg_count" : message_count});
+}
+
+var stream_node_ids = function(node_id) {
+  console.log(">> " + node_id);
+  var socket = latest_client.socket;
+  socket.emit('stream node ids', {"node_id" : node_id});
 }
 
 console.log(__dirname);
@@ -54,8 +61,11 @@ io.on('connection', function(socket) {
   });
 
   socket.on("node selection", function(message) {
-    var log_name = message.subject + '-' + Date.now() + '.log';
-    var file = fs.createWriteStream(log_name);
+    var log_name = 
+      message.subject + '.' + 
+      message.time + '.' + 
+      message.selection_count + '.log';
+    var file = fs.createWriteStream('logs/' + log_name);
     file.on('error', function(err) { 
       console.log('could not save...\n' + err);
     });
@@ -65,7 +75,24 @@ io.on('connection', function(socket) {
     });
     
     file.end();
-    console.log();
+  });
+
+  socket.on("node selection history", function(log_id) {
+    console.log(log_id);
+    var log_name = log_id + ".log";
+
+    var rdl = readline.createInterface({
+      input: fs.createReadStream(__dirname + '/logs/' + log_name) //process.stdin //, output: process.stdout
+    });
+
+    rdl.on('line', function (str) {
+      stream_node_ids(str);
+    });
+
+    rdl.on('close', function() {
+      stream_node_ids("done");
+    });
+
   });
 
   socket.on('disconnect', function() {

@@ -140,7 +140,8 @@ var max_wt = 1;
 var lasso;
 var all_classes = [];
 var color_picker;
-var stop_class_color = "#444"
+var stop_class_color = "#444444"
+var selection_count = 0;
 
 var module_color = function(data) {
   if(data.colorGroup2 === all_classes.length) 
@@ -302,6 +303,8 @@ var init = function(error, graph) {
 
   magic(links, node, width, height);
 
+  remove_color();
+
 }
 
 var subject = "";
@@ -431,9 +434,9 @@ var blink3 = function() {
 }
 
 var slowdown = function(value) {
-  slider_delay = 1 * parseInt(value);
+  slider_delay = 0.001 * parseInt(value);
   var slowdownvalue = document.getElementsByName("slowdownvalue")[0];
-  slowdownvalue.innerHTML = slider_delay;
+  slowdownvalue.innerHTML = slider_delay * 1000;
 }
 
 var slide = function(value) {
@@ -482,21 +485,19 @@ var get_instruction_info = function(insn, sep) {
   return str_temp;
 }
 
-var toggle_color = function(btn) {
-  var isColored = btn.getAttribute("colored");
-  if(isColored === "0") {
-    d3.selectAll(".node").style("fill", 
-      function(d) { 
-        return module_color(d); 
-      });
-    btn.setAttribute("colored", "1");
-  } else if(isColored === "1") {
-    d3.selectAll(".node").style("fill", function(d) {
+function add_color() {
+  d3.selectAll(".node").style("fill", 
+    function(d) { 
+      return module_color(d); 
+    });
+}
+
+function remove_color() {
+  d3.selectAll(".node").style("fill", 
+    function(d) {
       if(d.colorGroup2 === all_classes.length) return stop_class_color;
       return "white"
     });
-    btn.setAttribute("colored", "0")
-  }
 }
 
 var toggle_edges = function() {
@@ -626,16 +627,36 @@ var dump_selection_to_server = function(selected_nodes) {
   var selected_data = selected_nodes.map(function(element) { 
     return element.__data__.id; 
   });
-  var message = {'subject' : subject, 'selection' : selected_data};
+
+  var time = Date.now();
+
+  var message = {
+    'selection' : selected_data,
+    'subject' : subject, 
+    'selection_count' : selection_count++, 
+    'time' : time};
+
+  var datetime = new Date();
+  datetime.setTime(time);
+
+  var log_name =
+      message.subject + '.' + 
+      message.time + '.' + 
+      message.selection_count; 
+
+  d3.select("#selection-history")
+    .append("option")
+    .attr("value", log_name)
+    .text(message.selection_count + ") " +
+      message.subject + ", time:" + 
+      datetime.getHours() + ":" + datetime.getMinutes() + ":" + datetime.getSeconds());
+
+
+
   socket.emit('node selection', message);
 }
 
-var activate_selection = function(selected_nodes) {
-  if(selected_nodes === null || selected_nodes.length === 0) {
-    return;
-  }
-
-  dump_selection_to_server(selected_nodes);
+var populate_distb_lists = function(selected_nodes) {
   var clean_type_desc = function(name) {
     var re = new RegExp("L[a-z0-9]+/", "g");
     var re2 = new RegExp("[a-z0-9]+/", "g");
@@ -691,4 +712,60 @@ var activate_selection = function(selected_nodes) {
 
   document.getElementById("methodlist").innerHTML = output2;
 }
+
+var activate_selection = function(selected_nodes) {
+  if(selected_nodes === null || selected_nodes.length === 0) {
+    document.getElementById("classlist").innerHTML = "";
+    document.getElementById("methodlist").innerHTML = "";
+    return;
+  }
+
+  dump_selection_to_server(selected_nodes);
+
+
+  populate_distb_lists(selected_nodes);
+
+}
+
+var select_colored = function() {
+  var nodes = d3.selectAll('.node')[0];
+  var selected_nodes = [];
+  for (var i = nodes.length - 1; i >= 0; i--) {
+    var color = d3.rgb(nodes[i].style.fill).toString();
+    if(color === '#ffffff' || color === stop_class_color) {
+      continue;
+    }
+
+    d3.select(nodes[i]).attr("r", 10);
+
+    selected_nodes.push(nodes[i]);
+
+  };
+
+  activate_selection(selected_nodes); 
+}
+
+var show_selection = function(value) {
+  socket.emit('node selection history', value);
+}
+
+
+var global_selected_nodes = [];
+socket.on('stream node ids', function(message) {
+  if(message.node_id === "done") {
+    populate_distb_lists(global_selected_nodes);
+    global_selected_nodes = null;
+    global_selected_nodes = [];
+    return;
+  }
+
+  var nodeid = parseInt(message.node_id);
+  var node = d3.selectAll('.node')[0][parseInt(nodeid) - 1];
+  d3.select(node).attr("r", 10);
+  global_selected_nodes.push(node);
+
+  // console.log(node);
+  
+    // animate_node(node_id);
+});
 

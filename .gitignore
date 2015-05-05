@@ -30,4 +30,9 @@ sftp-config.json
 *.trc.json
 
 streams/*
+
 notes/*
+
+#log files
+logs/*
+*log
