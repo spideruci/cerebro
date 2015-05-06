@@ -158,11 +158,6 @@ var is_stop_class = function(class_name) {
   return false;
 }
 
-
-
-
-
-
 var init = function(error, graph) {
   traces = graph.traces;
   traces_pointer = 0;
@@ -346,14 +341,7 @@ var change_subject = function(value) {
   initate(value);
 }
 
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
-}
-
 var magic = function(links, node, max_width, max_height) {
-  var random_x1 = getRandomInt(0, max_width);
-  var random_y1 = getRandomInt(0, max_height);
-  
   links.attr("x1", function(d) { return d.x1; })
         .attr("y1", function(d) { return d.y1; })
         .attr("x2", function(d) { return d.x2; })
@@ -364,8 +352,6 @@ var magic = function(links, node, max_width, max_height) {
       time = end - start;
       console.log(time);
       time = time / 1000;
-      // document.getElementsByName("state")[0].value = "loading completed in ... "
-      // document.getElementById("timeview").innerHTML = time.toString() + " seconds."
       for(var i = 0; i < document.getElementsByTagName("button").length; i += 1) {
         document.getElementsByTagName("button")[i].disabled = false  
       }
@@ -472,7 +458,6 @@ var print_sourceline_on_console = function(insn) {
   var curr_insn_div = document.getElementsByName("curr_insn")[0];
   var find = '\n';
   var re = new RegExp('\n', 'g');
-  //var insn = ddg_nodes[node_id - 1];
   curr_insn_div.innerHTML = get_instruction_info(insn, "<br/>");
 }
 
@@ -558,14 +543,6 @@ var lock_transformation = function(checkbox) {
   }
 }
 
-function brushstart() {
-  svg.classed("selected", true);
-}
-
-function brushend() {
-  svg.classed("selected", !d3.event.target.empty());
-}
-
 // Lasso functions to execute while lassoing
 var lasso_start = function() {
   lasso.items()
@@ -602,26 +579,7 @@ var lasso_end = function() {
   activate_selection(selection[0])
 };
 
-var put_in_dict = function(name, temp_dict, color) {
-  var contains = false;
-  var result = null;
-  for(var i = 0; i < temp_dict.length; i += 1) {
-    if(temp_dict[i].key === name) {
-      result = temp_dict[i];
-      contains = true;  
-      break;
-    }
-  }
-  if(contains) {
-    if(parseInt(result.value)) {
-      result.value += 1;
-    } else {
-      result.value = 1;
-    }
-  } else {
-    temp_dict[temp_dict.length] = {key: name, value: 1, "color": color}
-  }
-}
+
 
 var dump_selection_to_server = function(selected_nodes) {
   var selected_data = selected_nodes.map(function(element) { 
@@ -645,13 +603,12 @@ var dump_selection_to_server = function(selected_nodes) {
       message.selection_count; 
 
   d3.select("#selection-history")
-    .append("option")
+    .insert("option", ':first-child')
     .attr("value", log_name)
+    .attr('selected', true)
     .text(message.selection_count + ") " +
       message.subject + ", time:" + 
       datetime.getHours() + ":" + datetime.getMinutes() + ":" + datetime.getSeconds());
-
-
 
   socket.emit('node selection', message);
 }
@@ -663,89 +620,120 @@ var populate_distb_lists = function(selected_nodes) {
     return name.replace(re, "", "g").replace(re2, "", "g");
   }
 
+  var put_in_dict = function(name, temp_dict, color) {
+    var contains = false;
+    var result = null;
+    for(var i = 0; i < temp_dict.length; i += 1) {
+      if(temp_dict[i].key === name) {
+        result = temp_dict[i];
+        contains = true;  
+        break;
+      }
+    }
+    if(contains) {
+      if(parseInt(result.value)) {
+        result.value += 1;
+      } else {
+        result.value = 1;
+      }
+    } else {
+      temp_dict[temp_dict.length] = {key: name, value: 1, "color": color}
+    }
+  }
+
+  var populate_lists = function(list_id, list_title, dict) {
+
+    var divs = d3.select(list_id).selectAll('div')
+      .data(dict).enter().append('div');
+
+    divs.append('span')
+        .text(function(d) {return " " + d.key; });
+    divs.insert('span', ':first-child')
+      .attr('class', 'badge')
+      .style('color', 'black')
+      .style('background-color', function(d) { return d.color; })
+      .text(function(d) { return d.value; });
+
+    d3.select(list_id)
+      .insert('b', ':first-child')
+      .text(list_title);
+  };
+
   dict = [];
   method_dict = [];
-  
-  for (var count = 0; count < selected_nodes.length; count += 1) {
-    var data = selected_nodes[count].__data__;
-    color = module_color(data);
-    put_in_dict(data.className, dict, color);
-    put_in_dict(data.methodName, method_dict, color);
-  }
+
+  d3.selectAll(selected_nodes).each(function(d, i) {
+    var color = module_color(d);
+    put_in_dict(d.className, dict, color);
+    put_in_dict(d.methodName, method_dict, color);
+  });
+
 
   dict = dict.sort(function (a, b) {
     return parseInt(b.value) - parseInt(a.value);
   });
 
-  var output = "";
-  if(dict.length != 0) output = "<b>Selection's Class Distribution</b> <br/>";
-  for (var count2 = 0; count2 < dict.length; count2 += 1) {
-    var classCount = dict[count2].value;
-    var color = dict[count2].color;
-    var span_start = '<span class="badge" style="background-color:white; color:black">'.replace('white', color);
-    var count_markup = span_start + classCount + "</span>";
-    var className = dict[count2].key;
-    var temp = count_markup + " " + className + "<br/>";
-
-    output += temp;
-  }
-
-  document.getElementById("classlist").innerHTML = output;
+  populate_lists('#classlist', "Selection's Class Distribution", dict)
 
   method_dict = method_dict.sort(function (a, b) {
     return parseInt(b.value) - parseInt(a.value);
   });
 
-  var output2 = "";
-  
-  if(method_dict.length != 0) output2 = "<b>Selection's Method Distribution</b> <br/>";
-  for (var count2 = 0; count2 < method_dict.length; count2 += 1) {
-    var methodName = method_dict[count2].key;
-    methodName = methodName.replace("<", "&lt;", "g").replace(">", "&gt;", "g");
-    methodName = clean_type_desc(methodName).replace(",", "");
-    var color = method_dict[count2].color;
-    var span_start = '<span class="badge" style="background-color:white; color:black">'.replace('white', color);
-    var methodCount = span_start + method_dict[count2].value + "</span>";
-    var temp = methodCount + " " + methodName + "<br/>";
-    output2 += temp;
-  }
+  method_dict = method_dict.map(function (element) {
+    var method_name = element.key;
+    method_name = 
+      method_name.replace("<", "&lt;", "g").replace(">", "&gt;", "g");
+    method_name = clean_type_desc(method_name).replace(',', '.');
+    element.key = method_name;
+    return element;
+  })
 
-  document.getElementById("methodlist").innerHTML = output2;
+  populate_lists('#methodlist', "Selection's Class Distribution", method_dict)
+
+}
+
+var clear_distb_lists = function() {
+  d3.select('#classlist').html('');
+  d3.select('#methodlist').html('');
+}
+
+var set_univ_nodes_radius = function(radius) {
+  return d3.selectAll('.node').attr('r', radius);
+}
+
+var deactivate_any_selection = function() {
+  clear_distb_lists();
+  set_univ_nodes_radius(5);
 }
 
 var activate_selection = function(selected_nodes) {
   if(selected_nodes === null || selected_nodes.length === 0) {
-    document.getElementById("classlist").innerHTML = "";
-    document.getElementById("methodlist").innerHTML = "";
+    deactivate_any_selection();
     return;
   }
 
   dump_selection_to_server(selected_nodes);
-
-
   populate_distb_lists(selected_nodes);
 
 }
 
 var select_colored = function() {
-  var nodes = d3.selectAll('.node')[0];
   var selected_nodes = [];
-  for (var i = nodes.length - 1; i >= 0; i--) {
-    var color = d3.rgb(nodes[i].style.fill).toString();
+  d3.selectAll('.node').each(function(d, i) {
+    var color = d3.rgb(this.style.fill).toString();
     if(color === '#ffffff' || color === stop_class_color) {
-      continue;
+      return;
     }
 
-    d3.select(nodes[i]).attr("r", 10);
-
-    selected_nodes.push(nodes[i]);
-
-  };
+    d3.select(this).attr("r", 10);
+    selected_nodes.push(this);
+  });
 
   activate_selection(selected_nodes); 
 }
 
 var show_selection = function(value) {
+  deactivate_any_selection();
   socket.emit('node selection history', value);
 }
 
