@@ -11,13 +11,13 @@ CEREBRO reveals clusters of source code that co-execute to produce behavioral fe
 - Twitter Bootstrap (version 3).
 
 ## LIVE DEMO:
-- Working Demo: [http://www.ics.uci.edu/~vpalepu/thebrain](http://www.ics.uci.edu/~vpalepu/thebrain)
+- Working Demo: [http://spideruci.github.io/cerebro/](http://spideruci.github.io/cerebro/)
 - Vimeo: [http://vimeo.com/69526834](http://vimeo.com/69526834)
 
 ## INSTALLATION & USAGE INSTRUCTIONS
 *More to come.*
 
-## [CHANGE LOG](https://bitbucket.org/vpalepu/thebrain/wiki/Change%20Log)
+## [CHANGE LOG](https://github.com/spideruci/cerebro/wiki/ChangeLog)
 
 ## Authors:
 Vijay Krishna Palepu, vpalepu [at] uci [dot] edu  
