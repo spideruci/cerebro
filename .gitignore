@@ -27,7 +27,7 @@ hs_err_pid*
 sftp-config.json
 
 # trace files
-*.trc.json
+# *.trc.json
 
 streams/*
 

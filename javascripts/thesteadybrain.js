@@ -223,7 +223,7 @@ var blink3 = function() {
   playstate.innerHTML = "Fetching Trace";
   var trace_name = traces[traces_pointer].name;
 
-  d3.json("./traces/nanoxml/" + trace_name + ".json", function(error, json) {
+  d3.json("traces/nanoxml/" + trace_name + ".json", function(error, json) {
     if (error) return console.warn(error);
     trace = json;
     playstate.innerHTML = "Playing";
