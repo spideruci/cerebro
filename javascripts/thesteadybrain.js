@@ -78,12 +78,6 @@ d3.json("brains/nanoxml3.json", function(error, graph) {
               .style("stroke-width", function(d) { return plateau(d.value); })
               ;
 
-  
-
-  
-
-
-
   var toY = function(currentNode) { return currentNode.y }
 
   var toX = function(currentNode) { return currentNode.x }
@@ -143,62 +137,6 @@ d3.json("brains/nanoxml3.json", function(error, graph) {
   // Init the lasso on the svg:g that contains the dots
   vis.call(lasso);
 
-
-
-
-  // var brush = vis.append("g")
-  // .attr("class", "brush")
-  // .call(d3.svg.brush().x(x_scale).y(y_scale)
-  // .on("brushstart", brushstart)
-  // .on("brush", function() {
-  //       var extent = d3.event.target.extent();
-  //       extent[0][0] = x_scale(extent[0][0]);
-  //       extent[0][1] = y_scale(extent[0][1]);
-  //       extent[1][0] = x_scale(extent[1][0]);
-  //       extent[1][1] = y_scale(extent[1][1]);
-  //       node.classed("selected", function(d) {
-          
-  //         return extent[0][0] <= d.x && d.x < extent[1][0]
-  //             && extent[0][1] <= d.y && d.y < extent[1][1];
-  //       });
-  //       dict = [];
-  //       method_dict = [];
-  //       var selected_nodes = d3.selectAll("circle.selected")[0];
-  //       for(var count = 0; count < selected_nodes.length; count += 1) {
-  //         var temp = selected_nodes[count].getAttribute("content");
-  //         put_classname_in_dict(temp);
-  //         put_methodname_in_dict(temp);
-  //       }
-  //       var output = "Classes Selected: <br/>";
-
-  //       for(var count2 = 0; count2 < dict.length; count2 += 1) {
-  //         var classCount = dict[count2].value
-  //         var count_markup = "<span class=\"badge\">" + classCount + "</span>";
-  //         var className = dict[count2].key.substring("Class: ".length);
-  //         var temp = count_markup + " " + className + "<br/>";
-            
-  //         output += temp;  
-  //       }
-  //       document.getElementById("classlist").innerHTML = output;
-        
-  //       var output2 = "Methods Selected: <br/>";
-  //       for(var count2 = 0; count2 < method_dict.length; count2 += 1) {
-  //         var methodName = method_dict[count2].key.substring("Method: ".length);
-  //         var methodCount = "<span class=\"badge\">" + method_dict[count2].value + "</span>";
-  //         var temp = methodCount + " " + methodName + "<br/>";
-  //         output2 += temp;  
-  //       }
-  //       document.getElementById("methodlist").innerHTML = output2;
-  //     })
-  // .on("brushend", brushend));
-
-  // d3.select("rect.background")
-  //   .style("visibility", "visible")
-  //   .style("stroke", "pink")
-  //   .style("fill", "lightgrey")
-  //   .style("fill-opacity", 0.05)
-  //   .style("stroke-width", "2px");
-
   d3.select("rect.background").append("title").text("Selection Mode")
   
   var node = vis.selectAll(".node")
@@ -215,8 +153,6 @@ d3.json("brains/nanoxml3.json", function(error, graph) {
                         .attr("value", function(d, i) {return i;})
                         .text(function(d) {return d.name;})
                         ;
-
-  
 
   node.append("title")
       .text(function(d) { return get_instruction_info(d); });
@@ -287,7 +223,7 @@ var blink3 = function() {
   playstate.innerHTML = "Fetching Trace";
   var trace_name = traces[traces_pointer].name;
 
-  d3.json("traces/nanoxml/" + trace_name + ".json", function(error, json) {
+  d3.json("./traces/nanoxml/" + trace_name + ".json", function(error, json) {
     if (error) return console.warn(error);
     trace = json;
     playstate.innerHTML = "Playing";
