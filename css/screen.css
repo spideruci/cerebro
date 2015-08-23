@@ -1,6 +1,3 @@
----
----
-
 img, object {
      max-width: 100%;
 }
@@ -45,7 +42,7 @@ body {
   font-size:13px;
   line-height:1.5em;
   background:#fdfdfd;
-  /*background-image: url({{ site.url }}/images/brain.png);*/
+  /*background-image: url(http://spideruci.github.io/images/brain.png);*/
   margin: 10px auto;
   padding: 1em;
 }
@@ -252,10 +249,10 @@ img.icon {
   width: auto;
   height: auto;
   /*background-position: -150px 900px;*/
-  /*background-image: url({{ site.url }}/images/tunnel.jpg);*/
-  /*background-image: url({{ site.url }}/images/brain.png);*/
-  /*background-image: url({{ site.url }}/images/1990.jpg);*/
-  /*background-image: url({{ site.url }}/images/wordle2.png);*/
+  /*background-image: url(http://spideruci.github.io/images/tunnel.jpg);*/
+  /*background-image: url(http://spideruci.github.io/images/brain.png);*/
+  /*background-image: url(http://spideruci.github.io/images/1990.jpg);*/
+  /*background-image: url(http://spideruci.github.io/images/wordle2.png);*/
   border-radius:10px; -moz-border-radius:10px;
   border:0px solid silver;
   margin-top: 10px;
@@ -271,10 +268,10 @@ img.icon {
   height: 150px;
   background-position: -150px 900px;
   /*background: #006666;*/
-  /*background-image: url({{ site.url }}/images/tunnel.jpg);*/
-  /*background-image: url({{ site.url }}/images/brain.png);*/
-  /*background-image: url({{ site.url }}/images/1990.jpg);*/
-  /*background-image: url({{ site.url }}/images/wordle2.png);*/
+  /*background-image: url(http://spideruci.github.io/images/tunnel.jpg);*/
+  /*background-image: url(http://spideruci.github.io/images/brain.png);*/
+  /*background-image: url(http://spideruci.github.io/images/1990.jpg);*/
+  /*background-image: url(http://spideruci.github.io/images/wordle2.png);*/
   border-radius:10px; -moz-border-radius:10px;
   border:0px solid silver;
   margin-top: 10px;
